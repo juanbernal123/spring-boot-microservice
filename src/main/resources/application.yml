@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: microservice # Nombre de la aplicación
+  config:
+    import: optional:classpath:messages.yml,optional:file:messages.yml # Importar mensajes
+  profiles:
+    active: ${APP_PROFILE:local} # Perfil de configuración
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5438/test}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver # Driver de la base de datos
+    hikari: # Configuración de Hikari
+      max-lifetime: 2000000 # tiempo máximo de vida de una conexión
+      maximum-pool-size: 20 #  cantidad de conexiones dentro del pool: 20 conexiones
+      auto-commit: false # el commit es manejado por las transacciones de Spring
+      minimum-idle: 5 # cantidad mínima de conexiones inactivas en el pool: 5 conexiones
+      connection-timeout: 30000 # tiempo de espera para obtener una conexión
+      idle-timeout: 30000 # tiempo de inactividad para cerrar la conexión
+  jpa:
+    #database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: ${JPA_SHOW_SQL:true}
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+          jdbc:
+            time_zone: UTC
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yml
+logging:
+  pattern:
+    console: "%style{%d{ISO8601}}{bright,white} %highlight{%-5level}[%style{%t}{blue}] %style{%C{1}}{red}: %msg%n%throwable"
+  level:
+    liquibase: debug
+    org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: warn
+eureka:
+  client:
+    enabled: false

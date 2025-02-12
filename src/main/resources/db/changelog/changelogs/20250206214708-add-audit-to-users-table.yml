@@ -1,0 +1,19 @@
+databaseChangeLog:
+- changeSet:
+    id: 1738878430750-1
+    author: juanbernal (generated)
+    changes:
+    - addColumn:
+        tableName: users
+        columns:
+        - column:
+            name: created_at
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: updated_at
+            type: DATETIME
+            constraints:
+              nullable: false
+

@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    #network_mode: host
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: juanbernal
+      POSTGRES_PASSWORD: pw
+    ports:
+      - "5438:5432"
+    volumes:
+      - ./pg_data/:/var/lib/postgresql/data
+    networks:
+      - sail
+  redis:
+    image: redis:7.2.4-bookworm
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - sail
+
+networks:
+  sail:
+    driver: bridge
