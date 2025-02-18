@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 public class UserDto {
     private Long id;
     private String name;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private LocalDateTime created_at; // TODO: cambiar a string
+    private LocalDateTime updated_at; // TODO: cambiar a string
 }
