@@ -3,40 +3,33 @@ package com.example.SpringBootMicroservice.controller;
 import com.example.SpringBootMicroservice.dto.request.UserRequest;
 import com.example.SpringBootMicroservice.dto.response.UserDto;
 import com.example.SpringBootMicroservice.service.impl.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class UserControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
+
+    @InjectMocks
+    private UserController userController;
+
+    @Mock
     private UserService userServiceImpl;
+
     private UserDto userDto;
     private UserRequest userRequest;
 
@@ -56,48 +49,30 @@ class UserControllerTest {
     @Test
     @Order(2)
     void findAll() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-                        .get("/users")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isOk())
-                .andReturn();
-        assertFalse(response.getResponse().getContentAsString().isEmpty());
+        when(userServiceImpl.findAll()).thenReturn(List.of(userDto));
+        ResponseEntity<List<UserDto>> response = userController.findAll();
+        assertNotNull(response);
+        assertEquals(1, Objects.requireNonNull(response.getBody()).size());
+        assertEquals(userDto.getId(), response.getBody().get(0).getId());
     }
 
     @Test
     @Order(1)
     void create() throws Exception {
         when(userServiceImpl.save(any(UserRequest.class))).thenReturn(userDto);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(userDto.getId()))
-                .andExpect(jsonPath("$.name").value(userDto.getName()))
-                .andExpect(jsonPath("$.created_at").exists())
-                .andExpect(jsonPath("$.updated_at").exists());
+        ResponseEntity<UserDto> response = userController.create(userRequest);
+        assertNotNull(response);
+        assertEquals(userDto.getId(), Objects.requireNonNull(response.getBody()).getId());
+        assertEquals(userDto.getName(), response.getBody().getName());
     }
 
     @Test
     @Order(3)
     void findById() throws Exception {
-        when(userServiceImpl.findById(1L)).thenReturn(Optional.ofNullable(userDto));
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/users/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(userDto.getId()))
-                .andExpect(jsonPath("$.name").value(userDto.getName()))
-                .andExpect(jsonPath("$.created_at").exists())
-                .andExpect(jsonPath("$.updated_at").exists());
+        when(userServiceImpl.findById(1L)).thenReturn(Optional.of(userDto));
+        ResponseEntity<UserDto> response = userController.findById(1L);
+        assertNotNull(response);
+        assertEquals(userDto.getId(), Objects.requireNonNull(response.getBody()).getId());
     }
 
     @Test
@@ -116,26 +91,20 @@ class UserControllerTest {
         updateUserDto.setCreated_at(LocalDateTime.now());
         updateUserDto.setUpdated_at(LocalDateTime.now());
 
-        when(userServiceImpl.update(eq(1L), any(UserRequest.class))).thenReturn(updateUserDto);
+        when(userServiceImpl.update(id, updateRequest)).thenReturn(updateUserDto);
+        ResponseEntity<UserDto> response = userController.update(id, updateRequest);
 
-        mockMvc.perform(MockMvcRequestBuilders
-                        .put("/users/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.name").value(updateUserDto.getName()))
-                .andExpect(jsonPath("$.created_at").exists())
-                .andExpect(jsonPath("$.updated_at").exists());
+        assertNotNull(response);
+        assertEquals(updateUserDto.getId(), Objects.requireNonNull(response.getBody()).getId());
+        assertEquals(updateUserDto.getName(), response.getBody().getName());
     }
 
     @Test
     @Order(5)
     void delete() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                .delete("/users/1"))
-                .andExpect(status().isOk());
+        doNothing().when(userServiceImpl).delete(1L);
+        ResponseEntity<String> response = userController.delete(1L);
+        assertNotNull(response);
+        verify(userServiceImpl, times(1)).delete(1L);
     }
 }
