@@ -1,0 +1,15 @@
+databaseChangeLog:
+- changeSet:
+    id: 1738878430777-1
+    author: elezcano (generated)
+    changes:
+    - addColumn:
+        tableName: users
+        columns:
+        - column:
+            name: email
+            type: varchar(100)
+            constraints:
+              nullable: false
+
+

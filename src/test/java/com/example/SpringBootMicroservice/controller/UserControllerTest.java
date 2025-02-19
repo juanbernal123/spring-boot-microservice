@@ -38,11 +38,12 @@ class UserControllerTest {
         userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("username");
-        userDto.setCreated_at(LocalDateTime.now());
-        userDto.setUpdated_at(LocalDateTime.now());
+        userDto.setCreated_at(String.valueOf(LocalDateTime.now()));
+        userDto.setUpdated_at(String.valueOf(LocalDateTime.now()));
 
         userRequest = new UserRequest();
         userRequest.setUsername("username");
+        userRequest.setEmail("");
         userRequest.setPassword("123123");
     }
 
@@ -88,8 +89,8 @@ class UserControllerTest {
         UserDto updateUserDto = new UserDto();
         updateUserDto.setId(id);
         updateUserDto.setName("username updated");
-        updateUserDto.setCreated_at(LocalDateTime.now());
-        updateUserDto.setUpdated_at(LocalDateTime.now());
+        updateUserDto.setCreated_at(String.valueOf(LocalDateTime.now()));
+        updateUserDto.setUpdated_at(String.valueOf(LocalDateTime.now()));
 
         when(userServiceImpl.update(id, updateRequest)).thenReturn(updateUserDto);
         ResponseEntity<UserDto> response = userController.update(id, updateRequest);

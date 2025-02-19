@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     // TODO: agregar rol y email
 
     @PrePersist

@@ -14,4 +14,5 @@ public interface IUserService {
     UserDto update(Long id, UserRequest user) throws Exception;
     void delete(Long id) throws ResourceNotFoundException;
     Optional<UserDto> findByUsername(String username);
+    Optional<UserDto> findByEmail(String email);
 }

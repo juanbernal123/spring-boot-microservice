@@ -77,4 +77,10 @@ public class UserService implements IUserService {
         Optional<User> findUser = userRepository.findByUsername(username);
         return findUser.map(UserMapper.mapper::toDto);
     }
+
+    @Override
+    public Optional<UserDto> findByEmail(String email) {
+        Optional<User> findUser = userRepository.findByEmail(email);
+        return findUser.map(UserMapper.mapper::toDto);
+    }
 }

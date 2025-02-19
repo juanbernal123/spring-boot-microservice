@@ -21,7 +21,7 @@ spring:
     #database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: ${JPA_SHOW_SQL:true}
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DDL_AUTO:none}
     properties:
       hibernate:
           jdbc:
