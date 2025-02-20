@@ -3,6 +3,7 @@ package com.example.SpringBootMicroservice.controller;
 import com.example.SpringBootMicroservice.dto.request.UserRequest;
 import com.example.SpringBootMicroservice.dto.response.UserDto;
 import com.example.SpringBootMicroservice.service.impl.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody UserRequest request) throws Exception {
+    public ResponseEntity<UserDto> create(@Valid @RequestBody UserRequest request) throws Exception {
         return ResponseEntity.ok(userService.save(request));
     }
 

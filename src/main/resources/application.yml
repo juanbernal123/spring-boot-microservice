@@ -21,7 +21,7 @@ spring:
     #database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: ${JPA_SHOW_SQL:true}
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DDL_AUTO:none}
     properties:
       hibernate:
           jdbc:
@@ -32,9 +32,15 @@ spring:
 logging:
   pattern:
     console: "%style{%d{ISO8601}}{bright,white} %highlight{%-5level}[%style{%t}{blue}] %style{%C{1}}{red}: %msg%n%throwable"
+  file:
+    name: "hola.log"
+    path: classpath:logs/
   level:
     liquibase: debug
     org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: warn
 eureka:
   client:
     enabled: false
+output:
+  ansi:
+    console-available: true
