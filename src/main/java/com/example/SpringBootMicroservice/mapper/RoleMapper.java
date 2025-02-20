@@ -3,11 +3,13 @@ package com.example.SpringBootMicroservice.mapper;
 import com.example.SpringBootMicroservice.dto.request.RoleRequest;
 import com.example.SpringBootMicroservice.dto.response.RoleDto;
 import com.example.SpringBootMicroservice.entity.Role;
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
+@Mapper
 public interface RoleMapper {
     RoleMapper mapper = Mappers.getMapper(RoleMapper.class);
 
