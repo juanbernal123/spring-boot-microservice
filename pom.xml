@@ -36,9 +36,6 @@
         <migration.name>new</migration.name> <!-- Nombre por defecto -->
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <lombok.version>1.18.30</lombok.version>
-        <liquibase.username>${env.DB_URL}</liquibase.username>
-        <liquibase.password>${env.DB_PASSWORD}</liquibase.password>
-        <liquibase.url>${env.DB_URL}</liquibase.url>
     </properties>
 
 
@@ -140,6 +137,10 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>3.4.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
     </dependencies>
     <dependencyManagement>
@@ -187,8 +188,8 @@
                 <version>4.29.2</version>
                 <configuration>
                     <url>${env.DB_URL}</url>
-                    <password>${env.USERNAME}</password>
-                    <username>${env.DB_PASSWORD}</username>
+                    <username>${env.USERNAME}</username>
+                    <password>${env.DB_PASSWORD}</password>
                     <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yml</changeLogFile>
                     <outputChangeLogFile>src/main/resources/db/changelog/changelogs/${timestamp}-${migration.name}.yml</outputChangeLogFile>
                 </configuration>

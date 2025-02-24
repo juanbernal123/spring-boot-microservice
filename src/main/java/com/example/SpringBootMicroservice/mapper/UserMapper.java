@@ -25,7 +25,7 @@ public interface UserMapper {
     @Mapping(source = "updated_at", target = "updatedAt")
     User toEntity(UserDto userDto);
 
-    User requestToDto(UserRequest userRequest);
+    User requestToEntity(UserRequest userRequest);
 
     List<UserDto> toDtoList(List<User> users);
     List<User> toEntityList(List<UserDto> userDtos);
