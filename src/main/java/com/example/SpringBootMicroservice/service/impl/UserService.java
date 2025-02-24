@@ -48,7 +48,7 @@ public class UserService implements IUserService {
             throw new UserRegistrationException(errors);
         }
 
-        User newUser = UserMapper.mapper.requestToDto(user);
+        User newUser = UserMapper.mapper.requestToEntity(user);
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         return UserMapper.mapper.toDto(userRepository.save(newUser));
 
