@@ -1,6 +1,5 @@
 package com.example.SpringBootMicroservice.controller;
 
-import com.example.SpringBootMicroservice.configuration.JwtAuthenticationFilter;
 import com.example.SpringBootMicroservice.dto.request.PermissionRequest;
 import com.example.SpringBootMicroservice.dto.response.PermissionDto;
 import com.example.SpringBootMicroservice.service.impl.PermissionService;
@@ -8,28 +7,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,7 +31,7 @@ class PermissionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @MockitoBean
     private PermissionService permissionServiceImpl;
     @Autowired
     private ObjectMapper objectMapper;
@@ -63,11 +55,11 @@ class PermissionControllerTest {
 
 
     @Test
-    @DisplayName("Test: obtener todos los permisos")
+    @DisplayName("FindAll OK: obtener todos los permisos")
     void findAll() throws Exception {
         when(permissionServiceImpl.findAll()).thenReturn(List.of(permissionDto));
 
-        mockMvc.perform(get("/permissions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/permissions")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(1)))
@@ -80,10 +72,11 @@ class PermissionControllerTest {
     }
 
     @Test
+    @DisplayName("Create OK: crear un registro con exito")
     void create() throws Exception {
         when(permissionServiceImpl.save(any(PermissionRequest.class))).thenReturn(permissionDto);
 
-        mockMvc.perform(post("/permissions")
+        mockMvc.perform(MockMvcRequestBuilders.post("/permissions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(permissionRequest)))
                 .andExpect(status().isOk())
@@ -95,14 +88,54 @@ class PermissionControllerTest {
     }
 
     @Test
-    void findById() {
+    @DisplayName("FindById OK: buscar un registro por ID")
+    void findById() throws Exception {
+        when(permissionServiceImpl.findById(1L)).thenReturn(Optional.of(permissionDto));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/permissions/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(permissionDto.getId().intValue())))
+                .andExpect(jsonPath("$.name", is(permissionDto.getName())))
+                .andExpect(jsonPath("$.display_name", is(permissionDto.getDisplay_name())))
+                .andExpect(jsonPath("$.created_at", is(permissionDto.getCreated_at())))
+                .andExpect(jsonPath("$.updated_at", is(permissionDto.getUpdated_at())));
     }
 
     @Test
-    void update() {
+    @DisplayName("Update OK: actualizacion de permiso mediante ID")
+    void update() throws Exception {
+        Long id = 1L;
+        PermissionRequest updateRequest = new PermissionRequest();
+        updateRequest.setName("test updated");
+        updateRequest.setDisplay_name("display name updated");
+
+        PermissionDto updateDto = new PermissionDto();
+        updateDto.setId(id);
+        updateDto.setName("test updated");
+        updateDto.setDisplay_name("display name updated");
+        updateDto.setCreated_at(String.valueOf(LocalDateTime.now()));
+        updateDto.setUpdated_at(String.valueOf(LocalDateTime.now()));
+
+        when(permissionServiceImpl.update(id, updateRequest)).thenReturn(updateDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/permissions/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(updateDto.getId().intValue())))
+                .andExpect(jsonPath("$.name", is(updateDto.getName())))
+                .andExpect(jsonPath("$.display_name", is(updateDto.getDisplay_name())))
+                .andExpect(jsonPath("$.created_at", is(updateDto.getCreated_at())))
+                .andExpect(jsonPath("$.updated_at", is(updateDto.getUpdated_at())));
     }
 
     @Test
-    void delete() {
+    @DisplayName("Delete OK: eliminar un permiso mediante ID")
+    void delete() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/permissions/1"))
+                .andExpect(status().isOk());
     }
 }
