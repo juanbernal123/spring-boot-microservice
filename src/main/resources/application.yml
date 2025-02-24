@@ -5,10 +5,8 @@ spring:
     import: optional:classpath:messages.yml,optional:file:messages.yml # Importar mensajes
   profiles:
     active: ${APP_PROFILE:local} # Perfil de configuración
+    include: application-${APP_PROFILE:local}.yml
   datasource:
-    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5438/test}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver # Driver de la base de datos
     hikari: # Configuración de Hikari
       max-lifetime: 2000000 # tiempo máximo de vida de una conexión
@@ -18,10 +16,6 @@ spring:
       connection-timeout: 30000 # tiempo de espera para obtener una conexión
       idle-timeout: 30000 # tiempo de inactividad para cerrar la conexión
   jpa:
-    #database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: ${JPA_SHOW_SQL:true}
-    hibernate:
-      ddl-auto: ${DDL_AUTO:none}
     properties:
       hibernate:
           jdbc:
@@ -32,15 +26,9 @@ spring:
 logging:
   pattern:
     console: "%style{%d{ISO8601}}{bright,white} %highlight{%-5level}[%style{%t}{blue}] %style{%C{1}}{red}: %msg%n%throwable"
-  file:
-    name: "hola.log"
-    path: classpath:logs/
   level:
     liquibase: debug
     org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator: warn
 eureka:
   client:
     enabled: false
-output:
-  ansi:
-    console-available: true

@@ -32,3 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 pg_data
+
+# ignorar configuraciones especificas de entornos
+/src/main/resources/application-local.yml
+/src/main/resources/application-production.yml
+/src/main/resources/application-staging.yml
+
+# no ignorar la configuracion de ejemplo
+!/src/main/resources/application-example.yml

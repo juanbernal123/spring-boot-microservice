@@ -1,0 +1,11 @@
+app:
+  secret-key: #generarlo con openssl
+spring:
+  datasource:
+    url: #direccion completa de la base de datos
+    username:
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
