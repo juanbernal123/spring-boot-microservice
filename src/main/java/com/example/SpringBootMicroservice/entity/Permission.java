@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
 @Table(name = "permissions")
@@ -29,6 +30,9 @@ public class Permission {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "permissions")
+    List<Role> roles = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

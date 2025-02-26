@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1740443398267-1
+      author: juanbernal
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: permission_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: role_id
+                  type: BIGINT
+            tableName: role_permissions
+  - changeSet:
+      id: 1740443398267-2
+      author: juanbernal
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: permission_id
+            baseTableName: role_permissions
+            constraintName: fk_rolper_on_permission
+            referencedColumnNames: id
+            referencedTableName: permissions
+  - changeSet:
+      id: 1740443398267-3
+      author: juanbernal
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: role_id
+            baseTableName: role_permissions
+            constraintName: fk_rolper_on_role
+            referencedColumnNames: id
+            referencedTableName: roles
+
