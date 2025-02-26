@@ -1,27 +1,33 @@
 package com.example.SpringBootMicroservice.service.impl;
 
 import com.example.SpringBootMicroservice.dto.request.RoleRequest;
+import com.example.SpringBootMicroservice.dto.response.RoleDetailDto;
 import com.example.SpringBootMicroservice.dto.response.RoleDto;
+import com.example.SpringBootMicroservice.entity.Permission;
 import com.example.SpringBootMicroservice.entity.Role;
-import com.example.SpringBootMicroservice.entity.User;
 import com.example.SpringBootMicroservice.exception.ResourceNotFoundException;
 import com.example.SpringBootMicroservice.exception.RoleNameTakenException;
 import com.example.SpringBootMicroservice.mapper.RoleMapper;
-import com.example.SpringBootMicroservice.mapper.UserMapper;
+import com.example.SpringBootMicroservice.repository.IPermissionRepository;
 import com.example.SpringBootMicroservice.repository.IRoleRepository;
 import com.example.SpringBootMicroservice.service.IRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class RoleService implements IRoleService {
 
     @Autowired
     private IRoleRepository roleRepository;
+    @Autowired
+    private IPermissionRepository permissionRepository;
+    @Autowired
+    private MessageSource messageSource;
 
     @Override
     public List<RoleDto> findAll() {
@@ -36,16 +42,18 @@ public class RoleService implements IRoleService {
             throw new RoleNameTakenException("Ya existe este rol");
         } else {
             Role newRole = RoleMapper.mapper.requestToDto(role);
-            System.out.println(newRole);
             return RoleMapper.mapper.toDto(roleRepository.save(newRole));
         }
     }
 
     @Override
-    public Optional<RoleDto> findById(Long id) throws ResourceNotFoundException {
-        Optional<Role> rolOptional = roleRepository.findById(id);
+    @Transactional(readOnly = true)
+    public Optional<RoleDetailDto> findById(Long id) throws ResourceNotFoundException {
+        Optional<Role> rolOptional = roleRepository.findWithPermissionsById(id);
         if (rolOptional.isPresent()) {
-            return rolOptional.map(RoleMapper.mapper::toDto);
+            Role role = rolOptional.get();
+            role.getPermissions().size();
+            return Optional.of(RoleMapper.mapper.detailToDto(role));
         } else {
             throw new ResourceNotFoundException("No existe este rol: " + id);
         }
@@ -78,12 +86,31 @@ public class RoleService implements IRoleService {
     }
 
     @Override
-    public void delete(Long id) throws ResourceNotFoundException {
+    public RoleDto delete(Long id) throws ResourceNotFoundException {
         Optional<Role> roleEntity = roleRepository.findById(id);
         if (roleEntity.isPresent()) {
             roleRepository.deleteById(id);
+            return RoleMapper.mapper.toDto(roleEntity.get());
         } else {
             throw new ResourceNotFoundException("No existe este rol: " + id);
         }
+    }
+
+    @Override
+    public RoleDetailDto assignPermissionToRole(Long id, List<Long> permissionIds) throws Exception {
+        String notFoundMessage = messageSource.getMessage("notFound.message", new Object[]{id}, Locale.getDefault());
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(notFoundMessage));
+
+        List<Permission> permissions = permissionRepository.findAllById(permissionIds);
+
+        if (permissions.size() != permissionIds.size()) {
+            String errorMessage = messageSource.getMessage("permissions.notFound.message", null, Locale.getDefault());
+            throw new ResourceNotFoundException(errorMessage);
+        }
+
+        role.setPermissions(permissions);
+        Role updatedRole = roleRepository.save(role);
+        return RoleMapper.mapper.detailToDto(updatedRole);
     }
 }
