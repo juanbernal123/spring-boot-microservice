@@ -36,6 +36,8 @@
         <migration.name>new</migration.name> <!-- Nombre por defecto -->
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <lombok.version>1.18.30</lombok.version>
+        <apache-poi.version>5.4.1</apache-poi.version>
+        <poi-ooxml.version>5.4.1</poi-ooxml.version>
     </properties>
 
 
@@ -140,6 +142,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Apache POI -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${apache-poi.version}</version>
+        </dependency>
+
+        <!-- Apache POI API Based On OPC and OOXML Schemas -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi-ooxml.version}</version>
         </dependency>
 
     </dependencies>

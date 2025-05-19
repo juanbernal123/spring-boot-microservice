@@ -4,8 +4,8 @@ import com.example.SpringBootMicroservice.dto.request.UserRequest;
 import com.example.SpringBootMicroservice.dto.response.UserDto;
 import com.example.SpringBootMicroservice.service.impl.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.AllArgsConstructor;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
     private UserService userService;
 
     @GetMapping
@@ -43,5 +43,17 @@ public class UserController {
     public ResponseEntity<String> delete(@PathVariable Long id) throws Exception {
         userService.delete(id);
         return ResponseEntity.ok("Se elimino el registro con id: " +id);
+    }
+
+    @GetMapping(value = "/export")
+    public ResponseEntity<byte[]> exportUsersToExcel() {
+
+        byte[] excelBytes = userService.exportUsersToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(ContentDisposition.attachment().filename("users.xlsx").build());
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
     }
 }
