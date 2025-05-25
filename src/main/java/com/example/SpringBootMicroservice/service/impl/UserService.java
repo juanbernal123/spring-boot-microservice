@@ -10,20 +10,25 @@ import com.example.SpringBootMicroservice.exception.UsernameTakenException;
 import com.example.SpringBootMicroservice.mapper.UserMapper;
 import com.example.SpringBootMicroservice.repository.IUserRepository;
 import com.example.SpringBootMicroservice.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserService implements IUserService {
 
-    @Autowired
     private IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -119,4 +124,41 @@ public class UserService implements IUserService {
         Optional<User> findUser = userRepository.findByEmail(email);
         return findUser.map(UserMapper.mapper::toDto);
     }
+
+    @Override
+    public byte[] exportUsersToExcel() {
+        List<UserDto> users = findAll();
+
+        try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            XSSFSheet sheet = workbook.createSheet("Users");
+
+            // Header
+            XSSFRow row = sheet.createRow(0);
+            row.createCell(0).setCellValue("ID");
+            row.createCell(1).setCellValue("Username");
+            row.createCell(2).setCellValue("Email");
+
+            // Datos
+            int colIndex = 0;
+            int rowIndex = 1;
+            for (UserDto user : users) {
+                row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(user.getId());
+                row.createCell(1).setCellValue(user.getName());
+                row.createCell(2).setCellValue(user.getEmail());
+
+                // Autoajustar las celdas
+                sheet.autoSizeColumn(colIndex++);
+                sheet.autoSizeColumn(colIndex++);
+                sheet.autoSizeColumn(colIndex++);
+            }
+
+            workbook.write(out);
+            return out.toByteArray();
+
+        } catch (IOException e) {
+            throw new IllegalStateException("Error generating Excel file", e);
+        }
+    }
+
 }

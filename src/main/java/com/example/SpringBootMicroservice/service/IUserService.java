@@ -15,4 +15,5 @@ public interface IUserService {
     void delete(Long id) throws ResourceNotFoundException;
     Optional<UserDto> findByUsername(String username);
     Optional<UserDto> findByEmail(String email);
+    byte[] exportUsersToExcel();
 }
